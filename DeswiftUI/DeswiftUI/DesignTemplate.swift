@@ -13,6 +13,12 @@ struct element: Identifiable {
     var quote: String
 }
 
+enum EditableElement {
+    case image(ImageConfig)
+    case text(TextConfig)
+    case button(ButtonConfig)
+    case list(ListConfig)
+}
 
 
 var listElements: [element] = [
@@ -23,6 +29,9 @@ var listElements: [element] = [
 ]
 
 struct DesignTemplate: View {
+    @StateObject var designConfig = DesignTemplateConfig()
+    @State private var selectedElement: EditableElement? = nil
+    @State private var showEditor = false
     
     var body: some View {
         VStack {
@@ -33,20 +42,35 @@ struct DesignTemplate: View {
                     .scaledToFill()
                     .frame(width: 300, height: 300)
                     .shadow(radius: 20)
-                    .clipShape(.containerRelative)
+                    .modifier(ClipShapeModifier(shape: designConfig.image1.clipShape))
+                    .onTapGesture {
+                        selectedElement = .image(designConfig.image1)
+                        showEditor = true
+                    }
                 Spacer()
             }
             .padding()
             Text("Duck Energy")
                 .bold()
                 .font(.title2)
+            
+                .onTapGesture {
+                    selectedElement = .text(designConfig.text1)
+                    showEditor = true
+                }
             Text("Good Day Elements")
                 .font(.title2)
                 .foregroundStyle(.red)
+                .onTapGesture {
+                    selectedElement = .text(designConfig.text2)
+                    showEditor = true
+                }
             
             HStack{
                 Button {
-                    //
+                    selectedElement = .button(designConfig.button1)
+                    showEditor = true
+
                 } label: {
                     HStack{
                         Spacer()
@@ -71,7 +95,8 @@ struct DesignTemplate: View {
                 
                 
                 Button {
-                    //
+                    selectedElement = .button(designConfig.button2)
+                    showEditor = true
                 } label: {
                     HStack{
                         Spacer()
@@ -107,8 +132,16 @@ struct DesignTemplate: View {
                             .scaledToFill()
                             .frame(width: 30, height: 30)
                             .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .onTapGesture {
+                                selectedElement = .image(designConfig.list1.imageConfig)
+                                showEditor = true
+                            }
                         Text(element.quote)
                             .padding(.horizontal, 5)
+                            .onTapGesture {
+                                selectedElement = .text(designConfig.list1.textConfig)
+                                showEditor = true
+                            }
                         Spacer()
                         Image(systemName: "ellipsis")
                             .padding(.trailing)
@@ -117,6 +150,23 @@ struct DesignTemplate: View {
                     
                 }
             }.listStyle(.plain)
+        }
+        .sheet(isPresented: $showEditor) {
+            if let selected = selectedElement {
+                switch selected {
+                case .image(let config):
+                    ImageEditorView(config: config)
+
+                case .text(let config):
+                    TextEditorView(config: config)
+
+                case .button(let config):
+                    ButtonEditorView(config: config)
+
+                case .list(let config):
+                    ListEditorView(config: config)
+                }
+            }
         }
 
     }
