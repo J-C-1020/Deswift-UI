@@ -259,7 +259,7 @@ struct ButtonEditorView: View {
 struct ListEditorView: View {
     @ObservedObject var config: ListConfig
     
-    let listStyles = ["plain", "grouped", "insetGrouped", "sidebar"] // you can adjust as needed
+    let listStyles = ["plain", "grouped", "insetGrouped", "sidebar"] // list styles
     
     var body: some View {
         NavigationView {
