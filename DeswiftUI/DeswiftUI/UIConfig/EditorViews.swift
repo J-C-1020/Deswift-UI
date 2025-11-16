@@ -241,26 +241,14 @@ struct ListEditorView: View {
     @ObservedObject var config: ListConfig
     
     let listStyles = ["plain", "grouped", "insetGrouped", "sidebar"] // list styles
-    let backgroundVisibilities = ["automatic", "hidden", "visible"]
+    let backgroundVisibilities: [(String, Visibility)] = [
+        ("Hidden", .hidden),
+        ("Visible", .visible),
+    ]
     
     var body: some View {
         NavigationView {
             Form {
-                
-                Section("Background & Row") {
-                    
-                    Picker("Background Visibility", selection: $config.backgroundVisibility) {
-                        ForEach(backgroundVisibilities, id: \.self) { visibility in
-                            Text(visibility.capitalized).tag(visibility)
-                        }
-                    }
-                    
-                    CustomSlider(title: "Corner Radius",value: $config.cornerRadius,range: 0...50)
-                    
-                    CustomSlider(title: "Row Spacing",value: $config.spacing,range: 0...50)
-                                        
-                    CustomSlider(title: "Row Height",value: $config.rowHeight.unwrapped(defaultValue: 20),range: 20...200)
-                }
                 
                 Section("List Style") {
                     Picker("List Style", selection: $config.listStyle) {
@@ -268,7 +256,22 @@ struct ListEditorView: View {
                             Text(style.capitalized).tag(style)
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.menu)
+                    
+                    Picker("Visibility", selection: $config.backgroundVisibility) {
+                        ForEach(backgroundVisibilities, id: \.0) { name, visibility in
+                            Text(name).tag(visibility)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                Section("Row") {
+                    CustomSlider(title: "Corner Radius",value: $config.cornerRadius,range: 0...50)
+                    
+                    CustomSlider(title: "Row Spacing",value: $config.spacing,range: 0...50)
+                                        
+                    CustomSlider(title: "Row Height",value: $config.rowHeight.unwrapped(defaultValue: 20),range: 20...200)
                 }
                 
                 Section("Icon") {
