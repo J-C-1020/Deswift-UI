@@ -53,7 +53,7 @@ class DesignTemplateConfig: ObservableObject {
     @Published var text3: TextConfig = TextConfig()
     
     // list 1 config
-    @Published var list1: ListConfig = ListConfig(backgroundColor: .clear, rowHeight: 0, cornerRadius: 0, spacing: 0, listStyle: "plain", textConfig: TextConfig(), imageConfig: ImageConfig(cornerRadius: 4, scaling: .fill, frameWidth: 30, frameHeight: 30, clipShape: "rounded") )
+    @Published var list1: ListConfig = ListConfig(backgroundVisibility: .hidden, rowHeight: 0, cornerRadius: 0, spacing: 0, listStyle: "plain", textConfig: TextConfig(), imageConfig: ImageConfig(cornerRadius: 4, scaling: .fill, frameWidth: 30, frameHeight: 30, clipShape: "rounded") )
 }
 
 struct DesignTemplate: View {
@@ -168,17 +168,9 @@ struct DesignTemplate: View {
                             Image(element.image)
                                 .resizable()
                                 .modifier(ImageConfigurationModifier(config: designConfig.list1.imageConfig))
-                                .onTapGesture {
-                                    selectedElement = .image(designConfig.list1.imageConfig)
-                                    showEditor = true
-                                }
                             Text(element.quote)
                                 .applyConfig(designConfig.list1.textConfig)
                                 .padding(designConfig.list1.textConfig.padding)
-                                .onTapGesture {
-                                    selectedElement = .text(designConfig.list1.textConfig)
-                                    showEditor = true
-                                }
                             Spacer()
                             Image(systemName: "ellipsis")
                                 .padding(.trailing)
@@ -186,9 +178,14 @@ struct DesignTemplate: View {
                         }
                         .frame(height: designConfig.list1.rowHeight)
                         .padding(.vertical, designConfig.list1.spacing)
+                        .onTapGesture {
+                            selectedElement = .list(designConfig.list1)
+                            showEditor = true
+                        }
                         
                     }
-                }.applyStyle(styleString: designConfig.list1.listStyle)
+                }
+                .applyStyle(styleString: designConfig.list1.listStyle)
                     .modifier(ListConfigurationModifier(config: designConfig.list1))
             }
         }

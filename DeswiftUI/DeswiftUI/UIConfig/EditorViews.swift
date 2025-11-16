@@ -27,6 +27,45 @@ struct ClipShapeModifier: ViewModifier {
     }
 }
 
+struct CustomSlider: View {
+    let title: String
+    @Binding var value: CGFloat
+    let range: ClosedRange<CGFloat>
+    let step: CGFloat
+    
+    init(title: String, value: Binding<CGFloat>, range: ClosedRange<CGFloat>, step: CGFloat = 1) {
+        
+        self.title = title
+        self._value = value
+        self.range = range
+        self.step = step
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5){
+            HStack {
+                Text(title)
+                Spacer()
+                Text("\(Int(value))")
+                    .font(.callout)
+                    .bold()
+            }
+            
+            Slider(value: $value, in: range, step: step)
+        }
+    }
+}
+
+// converts optional bindings to zero
+extension Binding where Value == CGFloat? {
+    func unwrapped(defaultValue: CGFloat = 0) -> Binding<CGFloat> {
+        return Binding<CGFloat>(
+            get: { self.wrappedValue ?? defaultValue },
+            set: { self.wrappedValue = $0 }
+        )
+    }
+}
+
 
 struct ImageEditorView: View {
     @ObservedObject var config: ImageConfig
@@ -42,36 +81,11 @@ struct ImageEditorView: View {
         NavigationView{
             Form {
                 Section("Frame") {
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.cornerRadius) },
-                            set: { config.cornerRadius = CGFloat($0) }
-                        ),
-                        in: 0...50
-                    ) {
-                        Text("Corner Radius")
-                    }
+                    CustomSlider(title: "Corner Radius",value: $config.cornerRadius,range: 0...50)
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.frameHeight ?? 0) },
-                            set: { config.frameHeight = CGFloat($0) }
-                        ),
-                        in: 0...300
-                    ) {
-                        Text("Height")
-                    }
+                    CustomSlider(title: "Height",value: $config.frameHeight.unwrapped(defaultValue: 0),range: 0...300)
 
-                    
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.frameWidth ?? 0) },
-                            set: { config.frameWidth = CGFloat($0) }
-                        ),
-                        in: 0...300
-                    ) {
-                        Text("Width")
-                    }
+                    CustomSlider(title: "Width",value: $config.frameWidth.unwrapped(defaultValue: 0),range: 0...300)
 
 
                     Stepper("Padding: \(Int(config.padding))",
@@ -79,9 +93,7 @@ struct ImageEditorView: View {
                 }
                 
                 Section("Shadow") {
-                    Slider(value: Binding($config.shadow)!, in: 0...30) {
-                        Text("Shadow")
-                    }
+                    CustomSlider(title: "Shadow",value: $config.shadow.unwrapped(defaultValue: 0),range: 0...30)
                 }
 
                 
@@ -167,12 +179,8 @@ struct TextEditorView: View {
                     
                     
                     Section("Padding") {
-                        Slider(value: $config.padding.double, in: 0...40) {
-                            Text("Padding")
-                        }
-                        Text("Padding: \(Int(config.padding))")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        Stepper("Padding: \(Int(config.padding))",
+                                value: $config.padding, in: 0...50)
                     }
                 }
                 .navigationTitle("Edit Text")
@@ -184,12 +192,6 @@ struct TextEditorView: View {
 
 struct ButtonEditorView: View {
     @ObservedObject var config: ButtonConfig
-
-    /*@Published var backgroundColor: Color = .blue
-     @Published var cornerRadius: CGFloat = 8
-     @Published var padding: CGFloat = 12
-     @Published var textConfig: TextConfig = TextConfig()
-     @Published var iconConfig: IconConfig = IconConfig()*/
     
     var body: some View {
         NavigationView {
@@ -198,39 +200,16 @@ struct ButtonEditorView: View {
                 Section("Background & Shape") {
                     ColorPicker("Background Color", selection: $config.backgroundColor)
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.cornerRadius) },
-                            set: { config.cornerRadius = CGFloat($0) }
-                        ),
-                        in: 0...50
-                    ) {
-                        Text("Corner Radius")
-                    }
+                    CustomSlider(title: "Corner Radius",value: $config.cornerRadius,range: 0...50)
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.padding) },
-                            set: { config.padding = CGFloat($0) }
-                        ),
-                        in: 0...50
-                    ) {
-                        Text("Padding")
-                    }
+                    Stepper("Padding: \(Int(config.padding))",
+                            value: $config.padding, in: 0...50)
                 }
                 
                 Section("Icon") {
                     ColorPicker("Icon Color", selection: $config.iconConfig.color)
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.iconConfig.size) },
-                            set: { config.iconConfig.size = CGFloat($0) }
-                        ),
-                        in: 8...100
-                    ) {
-                        Text("Icon Size")
-                    }
+                    CustomSlider(title: "Icon Size",value: $config.iconConfig.size,range: 8...100)
                     
                     Stepper("Icon Padding: \(Int(config.iconConfig.padding))",
                             value: $config.iconConfig.padding, in: 0...50)
@@ -238,19 +217,17 @@ struct ButtonEditorView: View {
                     TextField("Icon Name (SF Symbol)", text: $config.iconConfig.name)
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
-                    
-                    Slider(
-                        value: $config.iconConfig.opacity,
-                        in: 0...1
-                    ) {
-                        Text("Icon Opacity")
-                    }
+                                        
+                    CustomSlider(title: "Icon Opacity",
+                        value: Binding<CGFloat>(
+                            get: { CGFloat(config.iconConfig.opacity) }, // convert value for slider
+                            set: { config.iconConfig.opacity = Double($0) } // reconvert for latter usage
+                    ), range: 0...1)
                 }
                 
-                Section("Text") {
-                    TextEditorView(config: config.textConfig)
-                        .frame(height: 300)
-                }
+                TextEditorView(config: config.textConfig)
+                    .scrollContentBackground(.hidden)
+                    .frame(maxHeight: .infinity)
                 
             }
             .navigationTitle("Edit Button")
@@ -264,43 +241,25 @@ struct ListEditorView: View {
     @ObservedObject var config: ListConfig
     
     let listStyles = ["plain", "grouped", "insetGrouped", "sidebar"] // list styles
+    let backgroundVisibilities = ["automatic", "hidden", "visible"]
     
     var body: some View {
         NavigationView {
             Form {
                 
                 Section("Background & Row") {
-                    ColorPicker("Background Color", selection: $config.backgroundColor)
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.cornerRadius) },
-                            set: { config.cornerRadius = CGFloat($0) }
-                        ),
-                        in: 0...50
-                    ) {
-                        Text("Corner Radius")
+                    Picker("Background Visibility", selection: $config.backgroundVisibility) {
+                        ForEach(backgroundVisibilities, id: \.self) { visibility in
+                            Text(visibility.capitalized).tag(visibility)
+                        }
                     }
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.spacing) },
-                            set: { config.spacing = CGFloat($0) }
-                        ),
-                        in: 0...50
-                    ) {
-                        Text("Row Spacing")
-                    }
+                    CustomSlider(title: "Corner Radius",value: $config.cornerRadius,range: 0...50)
                     
-                    Slider(
-                        value: Binding(
-                            get: { Double(config.rowHeight ?? 0) },
-                            set: { config.rowHeight = CGFloat($0) }
-                        ),
-                        in: 20...200
-                    ) {
-                        Text("Row Height")
-                    }
+                    CustomSlider(title: "Row Spacing",value: $config.spacing,range: 0...50)
+                                        
+                    CustomSlider(title: "Row Height",value: $config.rowHeight.unwrapped(defaultValue: 20),range: 20...200)
                 }
                 
                 Section("List Style") {
@@ -312,29 +271,11 @@ struct ListEditorView: View {
                     .pickerStyle(.segmented)
                 }
                 
-                Section("Text") {
-                    TextEditorView(config: config.textConfig)
-                        .frame(height: 200)
-                }
-                
-                Section("Image") {
-                    ImageEditorView(config: config.imageConfig)
-                        .frame(height: 300)
-                }
-                
                 Section("Icon") {
                     VStack {
                         ColorPicker("Icon Color", selection: $config.iconConfig.color)
                         
-                        Slider(
-                            value: Binding(
-                                get: { Double(config.iconConfig.size) },
-                                set: { config.iconConfig.size = CGFloat($0) }
-                            ),
-                            in: 8...100
-                        ) {
-                            Text("Icon Size")
-                        }
+                        CustomSlider(title: "Icon Size",value: $config.iconConfig.size,range: 8...100)
                         
                         Stepper("Icon Padding: \(Int(config.iconConfig.padding))",
                                 value: $config.iconConfig.padding, in: 0...50)
@@ -343,14 +284,22 @@ struct ListEditorView: View {
                             .textInputAutocapitalization(.never)
                             .disableAutocorrection(true)
                         
-                        Slider(
-                            value: $config.iconConfig.opacity,
-                            in: 0...1
-                        ) {
-                            Text("Icon Opacity")
-                        }
+                        CustomSlider(title: "Icon Opacity",
+                            value: Binding<CGFloat>(
+                                get: { CGFloat(config.iconConfig.opacity) }, // convert value for slider
+                                set: { config.iconConfig.opacity = Double($0) } // reconvert for latter usage
+                        ), range: 0...1)
                     }
                 }
+                
+                
+                TextEditorView(config: config.textConfig)
+                    .scrollContentBackground(.hidden)
+                    .frame(maxHeight: .infinity)
+
+                ImageEditorView(config: config.imageConfig)
+                    .scrollContentBackground(.hidden)
+                    .frame(maxHeight: .infinity)
             }
             .navigationTitle("Edit List")
             .navigationBarTitleDisplayMode(.inline)
@@ -359,13 +308,3 @@ struct ListEditorView: View {
     }
 }
 
-
-// binder to help unwrapp double to cgfloat for ui elements
-extension Binding where Value == CGFloat {
-    var double: Binding<Double> {
-        Binding<Double>(
-            get: { Double(self.wrappedValue) },
-            set: { self.wrappedValue = CGFloat($0) }
-        )
-    }
-}

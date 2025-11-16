@@ -97,7 +97,7 @@ struct ListConfigurationModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(config.backgroundColor)
+            .scrollContentBackground(config.backgroundVisibility)
             .cornerRadius(config.cornerRadius)
     }
 }

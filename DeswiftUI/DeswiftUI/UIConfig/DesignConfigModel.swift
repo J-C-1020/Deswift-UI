@@ -92,8 +92,9 @@ final class ButtonConfig: ObservableObject {
     }
 }
 
+
 final class ListConfig: ObservableObject {
-    @Published var backgroundColor: Color
+    @Published var backgroundVisibility: Visibility = .visible
     @Published var rowHeight: CGFloat?
     @Published var cornerRadius: CGFloat
     @Published var spacing: CGFloat
@@ -102,7 +103,7 @@ final class ListConfig: ObservableObject {
     @Published var imageConfig: ImageConfig
     @Published var iconConfig: IconConfig
     
-    init(backgroundColor: Color = .clear,
+    init(backgroundVisibility: Visibility = .hidden,
          rowHeight: CGFloat? = nil,
          cornerRadius: CGFloat = 0,
          spacing: CGFloat = 0,
@@ -111,7 +112,7 @@ final class ListConfig: ObservableObject {
          imageConfig: ImageConfig = ImageConfig(),
          iconConfig: IconConfig = IconConfig()) {
         
-        self.backgroundColor = backgroundColor
+        self.backgroundVisibility = backgroundVisibility
         self.rowHeight = rowHeight
         self.cornerRadius = cornerRadius
         self.spacing = spacing
