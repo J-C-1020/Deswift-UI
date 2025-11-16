@@ -101,3 +101,33 @@ struct ListConfigurationModifier: ViewModifier {
             .cornerRadius(config.cornerRadius)
     }
 }
+
+extension View {
+    func iconConfig(_ config: IconConfig) -> some View {
+        self.modifier(IconConfigurationModifier(config: config))
+    }
+}
+
+struct IconConfigurationModifier: ViewModifier {
+    @ObservedObject var config: IconConfig
+    
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(config.color)
+            .opacity(config.opacity)
+            .frame(width: config.frameWidth, height: config.frameHeight)
+            .padding(config.padding)
+    }
+}
+
+extension UserDefaults {
+    static let instructionsSeenKey = "hasUserSeenInstructions"
+    
+    static func instructionsHaveBeenSeen() -> Bool {
+        return standard.bool(forKey: instructionsSeenKey)
+    }
+    
+    static func markInstructionsAsSeen() {
+        standard.set(true, forKey: instructionsSeenKey)
+    }
+}

@@ -6,87 +6,80 @@
 //
 
 import SwiftUI
-
-struct DeviceFrame<Content: View>: View {
-    let content: Content
-    
-    let aspectRatio: CGFloat = 9 / 19.5
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("9:41")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.black)
-
-                Spacer()
-                
-                HStack(spacing: 4) {
-                    Image(systemName: "wifi")
-                    Image(systemName: "battery.100")
-                }
-                .font(.system(size: 13, weight: .regular))
-                .foregroundColor(.black)
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 15)
-            .padding(.vertical, 8)
-            content
-        }
-        .aspectRatio(aspectRatio, contentMode: .fit)
-        .background(Color.white)
-        .cornerRadius(40)
-        .shadow(radius: 10)
-    }
-}
-
+import UIKit
 
 struct ContentView: View {
-    @State private var showEditor: Bool = false
-    @State private var selectedElement: EditableElement? = nil
+    @State private var thumbnailRefreshID = UUID()
+    @StateObject private var persistentConfig = DesignTemplateConfig()
+    @State private var templateName: String = "Music album"
+    @State private var isEditing: Bool = false
     
     var body: some View {
-        
-        GeometryReader { geo in
+        NavigationView{
             VStack{
+                HStack {
+                    Text("Design Studio")
+                        .font(.largeTitle)
+                        .foregroundStyle(.red)
+                        .opacity(0.8)
+                        .bold()
+                    Spacer()
+                }.padding([.bottom, .leading])
+                HStack {
+                    Text("Templates")
+                        .font(.title)
+                        .bold()
+                    Spacer()
+                }.padding(.leading)
                 Spacer()
-                DeviceFrame{
-                    DesignTemplate(selectedElement: $selectedElement, showEditor: $showEditor)
-                        .padding(2)
-                }
-                    
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .scaleEffect(showEditor == true ? 0.55 : 1.0)
-                .animation(.spring(), value: showEditor)
-                .offset(y: showEditor == true ? -geo.size.height * 0.25 : 0)
-                .sheet(isPresented: $showEditor) {
-                    Group{
-                        if let selected = selectedElement {
-                            switch selected {
-                            case .image(let config):
-                                ImageEditorView(config: config)
+                NavigationLink(destination: DesignEditor(designConfig: persistentConfig)){
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 20)
+                            .foregroundStyle(Color.gray)
+                            .opacity(0.2)
                                 
-                            case .text(let config):
-                                TextEditorView(config: config)
-                                
-                            case .button(let config):
-                                ButtonEditorView(config: config)
-                                
-                            case .list(let config):
-                                ListEditorView(config: config)
-                            }
+                        DesignEditor(designConfig: persistentConfig)
+                            .scaleEffect(0.8)
+                            .clipped()
+                            .allowsHitTesting(false)
+                            .id(thumbnailRefreshID)
+                    }.padding(.horizontal, 20)
+                    .onAppear {
+                            self.thumbnailRefreshID = UUID()
                         }
-                    }.presentationDetents([.fraction(0.45)])
-                        .presentationBackground(.ultraThickMaterial)
                 }
+                Spacer()
+                HStack{
+                    if isEditing {
+                        TextField("Enter new name", text: $templateName)
+                            .font(.body)
+                            .padding(.leading, 30)
+                            .textFieldStyle(.roundedBorder)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                isEditing = false
+                            }
+                    } else {
+                        Text(templateName)
+                            .bold()
+                            .padding(.leading, 30)
+                    }
+                    Spacer()
+                    
+                    
+                    Button{
+                        isEditing.toggle()
+                    } label: {
+                        Image(systemName: "pencil")
+                            .padding(.trailing, 30)
+                            .foregroundStyle(.black)
+                    }
+                }
+            }
         }
     }
 }
+
 
 #Preview {
     ContentView()

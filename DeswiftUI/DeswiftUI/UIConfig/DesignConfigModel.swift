@@ -10,14 +10,28 @@ import Foundation
 import Combine
 
 // model declaration of UI variables
+
 final class IconConfig: ObservableObject {
-    @Published var name: String = "person.fill"
-    @Published var color: Color = .blue
-    @Published var size: CGFloat = 24
-    @Published var padding: CGFloat = 8
+    @Published var name: String
+    @Published var color: Color
+    @Published var padding: CGFloat
     @Published var frameWidth: CGFloat? = nil
     @Published var frameHeight: CGFloat? = nil
-    @Published var opacity: Double = 1.0
+    @Published var opacity: Double
+    
+    init(name: String = "person.fill",
+         color: Color = .primary,
+         padding: CGFloat = 0,
+         frameWidth: CGFloat? = nil,
+         frameHeight: CGFloat? = nil,
+         opacity: Double = 1.0) {
+        self.name = name
+        self.color = color
+        self.padding = padding
+        self.frameWidth = frameWidth
+        self.frameHeight = frameHeight
+        self.opacity = opacity
+    }
 }
 
 enum ImageScaling: String, CaseIterable, Identifiable {
@@ -25,7 +39,6 @@ enum ImageScaling: String, CaseIterable, Identifiable {
     case fill
     var id: String { rawValue }
 }
-
 
 final class ImageConfig: ObservableObject {
     @Published var padding: CGFloat
@@ -58,16 +71,22 @@ final class TextConfig: ObservableObject {
     @Published var fontWeight: Font.Weight
     @Published var textStyle: Font.TextStyle?
     @Published var color: Color
-    @Published var padding: CGFloat = 0
+    @Published var paddingTrailing: CGFloat = 0
+    @Published var paddingLeading: CGFloat = 0
+    @Published var paddingTop: CGFloat = 0
+    @Published var paddingBottom: CGFloat = 0
     
     init(fontWeight: Font.Weight = .regular,
          textStyle: Font.TextStyle? = nil,
          color: Color = .primary,
-         padding: CGFloat = 0) {
+         paddingTrailing: CGFloat = 0, paddingLeading: CGFloat = 0, paddingTop: CGFloat = 0, paddingBottom: CGFloat = 0) {
         self.fontWeight = fontWeight
         self.textStyle = textStyle
         self.color = color
-        self.padding = padding
+        self.paddingTrailing = paddingTrailing
+        self.paddingLeading = paddingLeading
+        self.paddingTop = paddingTop
+        self.paddingBottom = paddingBottom
     }
 }
 
@@ -91,7 +110,6 @@ final class ButtonConfig: ObservableObject {
         self.iconConfig = iconConfig
     }
 }
-
 
 final class ListConfig: ObservableObject {
     @Published var backgroundVisibility: Visibility = .visible

@@ -35,29 +35,29 @@ var listElements: [element] = [
 class DesignTemplateConfig: ObservableObject {
     
     // image 1 config
-    @Published var image1: ImageConfig = ImageConfig(padding: 0, cornerRadius: 20, scaling: .fill, frameWidth: 300, frameHeight: 300, clipShape: "rounded", shadow: 20)
+    @Published var image1: ImageConfig = ImageConfig(padding: 0, cornerRadius: 20, scaling: .fill, frameWidth: 250, frameHeight: 250, clipShape: "rounded", shadow: 20)
     
     // text 1 config
-    @Published var text1: TextConfig = TextConfig(fontWeight: .bold, textStyle: .title2, color: .black, padding: 0)
+    @Published var text1: TextConfig = TextConfig(fontWeight: .bold, textStyle: .title, color: .black)
     
     // text 2 config
-    @Published var text2: TextConfig = TextConfig(fontWeight: .regular, textStyle: .title2, color: .red, padding: 0)
+    @Published var text2: TextConfig = TextConfig(fontWeight: .regular, textStyle: .title2, color: .red)
     
     // button 1 config
-    @Published var button1: ButtonConfig = ButtonConfig(backgroundColor: .gray, cornerRadius: 10, padding: 1, textConfig: TextConfig(fontWeight: .bold, color: .red, padding: 20), iconConfig: IconConfig())
+    @Published var button1: ButtonConfig = ButtonConfig(backgroundColor: .gray, cornerRadius: 50, padding: 1, textConfig: TextConfig(fontWeight: .bold, color: .red, paddingTrailing: 4, paddingLeading: 2, paddingTop: 20, paddingBottom: 20), iconConfig: IconConfig(name: "play.fill", color: .red))
 
     // button 2 config
-    @Published var button2: ButtonConfig = ButtonConfig(backgroundColor: .gray, cornerRadius: 10, padding: 1, textConfig: TextConfig(fontWeight: .bold, color: .red, padding: 20), iconConfig: IconConfig())
+    @Published var button2: ButtonConfig = ButtonConfig(backgroundColor: .gray, cornerRadius: 50, padding: 1, textConfig: TextConfig(fontWeight: .bold, color: .red, paddingTrailing: 2, paddingLeading: 4, paddingTop: 20, paddingBottom: 20), iconConfig: IconConfig(name: "shuffle", color: .red))
     
     // text 3 config
-    @Published var text3: TextConfig = TextConfig()
+    @Published var text3: TextConfig = TextConfig(color: .secondary)
     
     // list 1 config
-    @Published var list1: ListConfig = ListConfig(backgroundVisibility: .hidden, rowHeight: 0, cornerRadius: 0, spacing: 0, listStyle: "plain", textConfig: TextConfig(), imageConfig: ImageConfig(cornerRadius: 4, scaling: .fill, frameWidth: 30, frameHeight: 30, clipShape: "rounded") )
+    @Published var list1: ListConfig = ListConfig(backgroundVisibility: .hidden, rowHeight: 0, cornerRadius: 0, spacing: 0, listStyle: "plain", textConfig: TextConfig(), imageConfig: ImageConfig(cornerRadius: 4, scaling: .fill, frameWidth: 30, frameHeight: 30, clipShape: "rounded"), iconConfig: IconConfig(name: "ellipsis", frameWidth: 30, frameHeight: 30))
 }
 
 struct DesignTemplate: View {
-    @StateObject var designConfig = DesignTemplateConfig()
+    @ObservedObject var designConfig = DesignTemplateConfig()
     @Binding var selectedElement: EditableElement?
     @Binding var showEditor: Bool
     
@@ -82,7 +82,10 @@ struct DesignTemplate: View {
                 // text 1
                 Text("Duck Energy")
                     .applyConfig(designConfig.text1) // Apply all styling from config
-                    .padding(designConfig.text1.padding)
+                    .padding(.trailing, designConfig.text1.paddingTrailing)
+                    .padding(.leading, designConfig.text1.paddingLeading)
+                    .padding(.top, designConfig.text1.paddingTop)
+                    .padding(.bottom, designConfig.text1.paddingBottom)
                     .onTapGesture {
                         selectedElement = .text(designConfig.text1)
                         showEditor = true
@@ -91,7 +94,10 @@ struct DesignTemplate: View {
                 // text2
                 Text("Good Day Elements")
                     .applyConfig(designConfig.text2)
-                    .padding(designConfig.text2.padding)
+                    .padding(.trailing, designConfig.text2.paddingTrailing)
+                    .padding(.leading, designConfig.text2.paddingLeading)
+                    .padding(.top, designConfig.text2.paddingTop)
+                    .padding(.bottom, designConfig.text2.paddingBottom)
                     .onTapGesture {
                         selectedElement = .text(designConfig.text2)
                         showEditor = true
@@ -106,12 +112,16 @@ struct DesignTemplate: View {
                     } label: {
                         HStack{
                             Spacer()
-                            Image(systemName: "play.fill")
+                            Image(systemName: designConfig.button1.iconConfig.name)
+                                .iconConfig(designConfig.button1.iconConfig)
                                 .padding(2)
                                 .padding(.trailing, 2)
                             Text("Play")
                                 .applyConfig(designConfig.button1.textConfig)
-                                .padding(designConfig.button1.textConfig.padding)
+                                .padding(.trailing, designConfig.button1.textConfig.paddingTrailing)
+                                .padding(.leading, designConfig.button1.textConfig.paddingLeading)
+                                .padding(.top, designConfig.button1.textConfig.paddingTop)
+                                .padding(.bottom, designConfig.button1.textConfig.paddingBottom)
                             Spacer()
                         }.foregroundStyle(.red)
                         .background {
@@ -130,12 +140,16 @@ struct DesignTemplate: View {
                     } label: {
                         HStack{
                             Spacer()
-                            Image(systemName: "shuffle")
+                            Image(systemName: designConfig.button2.iconConfig.name)
+                                .iconConfig(designConfig.button2.iconConfig)
                                 .padding(2)
                                 .padding(.trailing, 2)
                             Text("Shuffle")
                                 .applyConfig(designConfig.button2.textConfig)
-                                .padding(designConfig.button2.textConfig.padding)
+                                .padding(.trailing, designConfig.button2.textConfig.paddingTrailing)
+                                .padding(.leading, designConfig.button2.textConfig.paddingLeading)
+                                .padding(.top, designConfig.button2.textConfig.paddingTop)
+                                .padding(.bottom, designConfig.button2.textConfig.paddingBottom)
                             Spacer()
                         }.foregroundStyle(.red)
                         .background {
@@ -153,7 +167,10 @@ struct DesignTemplate: View {
                 // text 3
                 Text("Duck elements for having your day full of good energy and wisdom ...")
                     .applyConfig(designConfig.text3)
-                    .padding(designConfig.text3.padding)
+                    .padding(.trailing, designConfig.text3.paddingTrailing)
+                    .padding(.leading, designConfig.text3.paddingLeading)
+                    .padding(.top, designConfig.text3.paddingTop)
+                    .padding(.bottom, designConfig.text3.paddingBottom)
                     .onTapGesture{
                         selectedElement = .text(designConfig.text3)
                         showEditor = true
@@ -170,11 +187,14 @@ struct DesignTemplate: View {
                                 .modifier(ImageConfigurationModifier(config: designConfig.list1.imageConfig))
                             Text(element.quote)
                                 .applyConfig(designConfig.list1.textConfig)
-                                .padding(designConfig.list1.textConfig.padding)
+                                .padding(.trailing, designConfig.list1.textConfig.paddingTrailing)
+                                .padding(.leading, designConfig.list1.textConfig.paddingLeading)
+                                .padding(.top, designConfig.list1.textConfig.paddingTop)
+                                .padding(.bottom, designConfig.list1.textConfig.paddingBottom)
                             Spacer()
-                            Image(systemName: "ellipsis")
+                            Image(systemName: designConfig.list1.iconConfig.name)
                                 .padding(.trailing)
-                            // add logic of modifying the icon
+                                .iconConfig(designConfig.list1.iconConfig)
                         }
                         .frame(height: designConfig.list1.rowHeight)
                         .padding(.vertical, designConfig.list1.spacing)

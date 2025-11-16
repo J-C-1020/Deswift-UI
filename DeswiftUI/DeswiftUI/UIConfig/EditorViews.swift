@@ -32,13 +32,15 @@ struct CustomSlider: View {
     @Binding var value: CGFloat
     let range: ClosedRange<CGFloat>
     let step: CGFloat
+    let displayAsInteger: Bool
     
-    init(title: String, value: Binding<CGFloat>, range: ClosedRange<CGFloat>, step: CGFloat = 1) {
+    init(title: String, value: Binding<CGFloat>, range: ClosedRange<CGFloat>, step: CGFloat = 1, displayAsInteger: Bool = true) {
         
         self.title = title
         self._value = value
         self.range = range
         self.step = step
+        self.displayAsInteger = displayAsInteger
     }
     
     var body: some View {
@@ -46,9 +48,15 @@ struct CustomSlider: View {
             HStack {
                 Text(title)
                 Spacer()
-                Text("\(Int(value))")
-                    .font(.callout)
-                    .bold()
+                if displayAsInteger {
+                    Text("\(Int(value))")
+                        .font(.callout)
+                        .bold()
+                } else {
+                    Text(String(format: "%.2f", value))
+                        .font(.callout)
+                        .bold()
+                }
             }
             
             Slider(value: $value, in: range, step: step)
@@ -66,6 +74,63 @@ extension Binding where Value == CGFloat? {
     }
 }
 
+struct IconEditorView: View {
+    @ObservedObject var config: IconConfig
+    
+    // for now, keep the icons available really simple
+    let suggestedIcons = ["play.fill", "shuffle", "ellipsis", "star.fill", "heart.fill", "person.fill", "bolt.fill", "bell.fill", "house.fill"]
+
+    var body: some View {
+        Group {
+            
+            Section("Icon Selection & Preview") {
+                HStack {
+                    Spacer()
+                    Image(systemName: config.name)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .opacity(config.opacity)
+                        .padding(.leading, 5)
+                    Spacer()
+                }
+                .padding(.vertical)
+                
+                Picker("SF Symbol", selection: $config.name) {
+                    ForEach(suggestedIcons, id: \.self) { iconName in
+                            Image(systemName: iconName)
+                        .tag(iconName)
+                    }
+                }
+                .foregroundColor(config.color)
+                .pickerStyle(.palette)
+            }
+            
+            Section("Appearance") {
+                ColorPicker("Icon Color", selection: $config.color)
+                                
+                CustomSlider(title: "Opacity",
+                    value: Binding<CGFloat>(
+                        get: { CGFloat(config.opacity) },
+                        set: { config.opacity = Double($0) }
+                    ),
+                    range: 0...1,
+                    step: 0.05,
+                    displayAsInteger: false
+                )
+            }
+            
+            Section("Frame & Spacing") {
+                Stepper("Padding: \(Int(config.padding))",
+                        value: $config.padding, in: 0...50)
+                
+                CustomSlider(title: "Frame Width", value: $config.frameWidth.unwrapped(defaultValue: 0), range: 0...300)
+                
+                CustomSlider(title: "Frame Height", value: $config.frameHeight.unwrapped(defaultValue: 0), range: 0...300)
+            }
+        }
+    }
+}
 
 struct ImageEditorView: View {
     @ObservedObject var config: ImageConfig
@@ -179,8 +244,17 @@ struct TextEditorView: View {
                     
                     
                     Section("Padding") {
-                        Stepper("Padding: \(Int(config.padding))",
-                                value: $config.padding, in: 0...50)
+                        Stepper("Padding Top: \(Int(config.paddingTop))",
+                                value: $config.paddingTop, in: 0...50)
+                        
+                        Stepper("Padding Bottom: \(Int(config.paddingBottom))",
+                                value: $config.paddingBottom, in: 0...50)
+                        
+                        Stepper("Padding Leading: \(Int(config.paddingLeading))",
+                                value: $config.paddingLeading, in: 0...50)
+                        
+                        Stepper("Padding Trailing: \(Int(config.paddingTrailing))",
+                                value: $config.paddingTrailing, in: 0...50)
                     }
                 }
                 .navigationTitle("Edit Text")
@@ -206,24 +280,9 @@ struct ButtonEditorView: View {
                             value: $config.padding, in: 0...50)
                 }
                 
-                Section("Icon") {
-                    ColorPicker("Icon Color", selection: $config.iconConfig.color)
-                    
-                    CustomSlider(title: "Icon Size",value: $config.iconConfig.size,range: 8...100)
-                    
-                    Stepper("Icon Padding: \(Int(config.iconConfig.padding))",
-                            value: $config.iconConfig.padding, in: 0...50)
-                    
-                    TextField("Icon Name (SF Symbol)", text: $config.iconConfig.name)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                                        
-                    CustomSlider(title: "Icon Opacity",
-                        value: Binding<CGFloat>(
-                            get: { CGFloat(config.iconConfig.opacity) }, // convert value for slider
-                            set: { config.iconConfig.opacity = Double($0) } // reconvert for latter usage
-                    ), range: 0...1)
-                }
+                IconEditorView(config: config.iconConfig)
+                    .scrollContentBackground(.hidden)
+                    .frame(maxHeight: .infinity)
                 
                 TextEditorView(config: config.textConfig)
                     .scrollContentBackground(.hidden)
@@ -274,27 +333,9 @@ struct ListEditorView: View {
                     CustomSlider(title: "Row Height",value: $config.rowHeight.unwrapped(defaultValue: 20),range: 20...200)
                 }
                 
-                Section("Icon") {
-                    VStack {
-                        ColorPicker("Icon Color", selection: $config.iconConfig.color)
-                        
-                        CustomSlider(title: "Icon Size",value: $config.iconConfig.size,range: 8...100)
-                        
-                        Stepper("Icon Padding: \(Int(config.iconConfig.padding))",
-                                value: $config.iconConfig.padding, in: 0...50)
-                        
-                        TextField("Icon Name (SF Symbol)", text: $config.iconConfig.name)
-                            .textInputAutocapitalization(.never)
-                            .disableAutocorrection(true)
-                        
-                        CustomSlider(title: "Icon Opacity",
-                            value: Binding<CGFloat>(
-                                get: { CGFloat(config.iconConfig.opacity) }, // convert value for slider
-                                set: { config.iconConfig.opacity = Double($0) } // reconvert for latter usage
-                        ), range: 0...1)
-                    }
-                }
-                
+                IconEditorView(config: config.iconConfig)
+                    .scrollContentBackground(.hidden)
+                    .frame(maxHeight: .infinity)
                 
                 TextEditorView(config: config.textConfig)
                     .scrollContentBackground(.hidden)
