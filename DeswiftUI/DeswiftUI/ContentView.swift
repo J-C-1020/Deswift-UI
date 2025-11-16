@@ -55,7 +55,7 @@ struct ContentView: View {
             VStack{
                 Spacer()
                 DeviceFrame{
-                    ExampleDesign(selectedElement: $selectedElement, showEditor: $showEditor)
+                    DesignTemplate(selectedElement: $selectedElement, showEditor: $showEditor)
                         .padding(2)
                 }
                     
