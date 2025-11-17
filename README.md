@@ -3,12 +3,13 @@
 Deswift UI is an iOS app built with Xcode designed to help understand the UI elements of the user interfaces and their adherence to design and human interface principles
 
 **App Views**
-![App Screenshot](DeswiftUI_TemplateView.png)
-![App Screenshot](DeswiftUI_DesignEditor.png)
-![App Screenshot](DeswiftUI_InstructionsView.png)
-![App Screenshot](DeswiftUI_EditImageView.png)
-![App Screenshot](DeswiftUI_EditButtonView.png)
-![App Screenshot](DeswiftUI_EditBackgroundColorView.png)
+<img src="DeswiftUI_TemplateView.png" width="300">
+<img src="DeswiftUI_DesignEditor.png" width="300">
+<img src="DeswiftUI_InstructionsView.png" width="300">
+<img src="DeswiftUI_EditImageView.png" width="300">
+<img src="DeswiftUI_EditButtonView.png" width="300">
+<img src="DeswiftUI_EditBackgroundColorView.png" width="300">
+
 
 ## Features
 - See template of Apple Music album view
