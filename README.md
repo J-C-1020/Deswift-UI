@@ -4,10 +4,15 @@ Deswift UI is an iOS app built with Xcode designed to help understand the UI ele
 
 **App Views**
 <img src="DeswiftUI_TemplateView.png" width="300">
+
 <img src="DeswiftUI_DesignEditor.png" width="300">
+
 <img src="DeswiftUI_InstructionsView.png" width="300">
+
 <img src="DeswiftUI_EditImageView.png" width="300">
+
 <img src="DeswiftUI_EditButtonView.png" width="300">
+
 <img src="DeswiftUI_EditBackgroundColorView.png" width="300">
 
 
